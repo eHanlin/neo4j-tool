@@ -20,7 +20,7 @@ def get_node(statement):
         group = matcher.groups()
         return dict(
             group = group,
-            query = "(:{0} {1})".format(group[1], group[2]),
+            query = "(_{0}:{1} {2})".format(group[0], group[1], group[2]),
             replace_id = "_{0}".format(group[0]),
         )
         
@@ -32,10 +32,14 @@ def push_id_mapping(node):
 def replace_id_from_mapping(statement, relationship):
     result = statement
     groups = relationship.groups()
+    query_rules = []
+
     for group in groups:
         pk = "_" + group
         node = id_mapping.get(pk)
-        result = result.replace(pk, node.get("query"))
+        query_rules.append(node.get("query"))
+
+    result = "Match {0} {1}".format(",".join(query_rules), statement)
 
     return result
     
@@ -73,7 +77,6 @@ def restore(file_path, host):
                     current_statement = replace_id_from_mapping(current_statement, current_relationship)
                     
                 result = gdb.query(q=current_statement)
-                print(id_mapping)
                 print(current_statement, result.get_response(), index)
                 index = index + 1
 
