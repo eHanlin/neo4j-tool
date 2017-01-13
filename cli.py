@@ -62,19 +62,20 @@ def restore(file_path, host):
         commands = f.read().split("\n")
     
         for command in commands:
-            current_statement = command
-            node = get_node(current_statement)
-            current_relationship = get_relationship(current_statement)
+            if command:
+                current_statement = command
+                node = get_node(current_statement)
+                current_relationship = get_relationship(current_statement)
     
-            if node:
-                push_id_mapping(node)
-            elif current_relationship:
-                current_statement = replace_id_from_mapping(current_statement, current_relationship)
-                
-            result = gdb.query(q=current_statement)
-            print(id_mapping)
-            print(current_statement, result.get_response(), index)
-            index = index + 1
+                if node:
+                    push_id_mapping(node)
+                elif current_relationship:
+                    current_statement = replace_id_from_mapping(current_statement, current_relationship)
+                    
+                result = gdb.query(q=current_statement)
+                print(id_mapping)
+                print(current_statement, result.get_response(), index)
+                index = index + 1
 
 if __name__ == '__main__':
     cli()
